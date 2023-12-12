@@ -7,6 +7,13 @@
     <title>VendMax</title>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('search') }}">Search</a></li>
+            <li><a href="{{ url_for('transactions_page') }}">Transactions</a></li>
+        </ul>
+    </nav>
     <h1>Welcome to VendMax</h1>
     <ul>
         {% for product in products %}
@@ -36,5 +43,13 @@
                 - Timestamp: {{ transaction[4] }}</li>
         {% endfor %}
     </ul>
+    <ul>
+        {% for product in products %}
+            <li>
+                {{ product[1] }} - Price: ${{ product[2] }} - Stock: {{ product[3] }}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('update_page') }}">Update Products</a>    
 </body>
 </html>

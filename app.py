@@ -49,14 +49,51 @@ def add_product():
         conn.commit()
 
     return redirect(url_for('index'))
+# Feature 6: Update product details
+@app.route('/update_product/<int:product_id>', methods=['GET', 'POST'])
+def update_product(product_id):
+    if request.method == 'GET':
+        # Retrieve the current details of the product
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM products WHERE id=?", (product_id,))
+            product = cursor.fetchone()
 
+        return render_template('update_product.html', product=product)
+
+    elif request.method == 'POST':
+        # Update the specified attributes of the product in the database
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+
+            update_data = {}
+            new_name = request.form.get('new_name')
+            if new_name:
+                update_data['name'] = new_name
+
+            new_price = request.form.get('new_price')
+            if new_price is not None:
+                update_data['price'] = float(new_price)
+
+            new_stock = request.form.get('new_stock')
+            if new_stock is not None:
+                update_data['stock'] = int(new_stock)
+
+            # Construct the SET clause based on the provided attributes
+            set_clause = ', '.join([f"{key} = ?" for key in update_data.keys()])
+
+            # Update the product in the database
+            cursor.execute(f"UPDATE products SET {set_clause} WHERE id=?", (*update_data.values(), product_id))
+            conn.commit()
+
+        return redirect(url_for('index'))
 @app.route('/transactions')
 def transactions():
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM transactions")
         transactions = cursor.fetchall()
-    return render_template('transactions.html', transactions=transactions)
+    return render_template('transactions_page.html', transactions=transactions)
 
 @app.route('/purchase/<int:product_id>', methods=['POST'])
 def purchase(product_id):
@@ -76,6 +113,44 @@ def purchase(product_id):
             conn.commit()
 
     return redirect(url_for('index'))
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        search_term = request.form.get('search_term')
 
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM products WHERE name LIKE ?", ('%' + search_term + '%',))
+            search_results = cursor.fetchall()
+
+        return render_template('search_results.html', search_results=search_results, search_term=search_term)
+
+    return render_template('search.html')
+@app.route('/update', methods=['GET', 'POST'])
+def update_page():
+    if request.method == 'GET':
+        # Retrieve the list of products for updating
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM products")
+            products = cursor.fetchall()
+
+        return render_template('update_page.html', products=products)
+
+    elif request.method == 'POST':
+        # Handle the update form submission
+        product_id = int(request.form.get('product_id'))
+
+        # Redirect to the specific update page for the selected product
+        return redirect(url_for('update_product', product_id=product_id))
+@app.route('/transactions')
+def transactions_page():
+    # Retrieve the transaction history from the database
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM transactions")
+        transactions = cursor.fetchall()
+
+    return render_template('transactions_page.html', transactions=transactions)
 if __name__ == '__main__':
     app.run(debug=True)
