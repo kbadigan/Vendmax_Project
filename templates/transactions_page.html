@@ -1,6 +1,7 @@
-<!-- templates/transactions_page.html -->
-<!DOCTYPE html>
-<html lang="en">
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,11 +10,29 @@
 </head>
 <body>
     <h1>Transaction History</h1>
-    <ul>
-        {% for transaction in transactions %}
-            <li>Product ID: {{ transaction[1] }} - Quantity: {{ transaction[2] }} - Total Price: ${{ transaction[3] }} - Timestamp: {{ transaction[4] }}</li>
-        {% endfor %}
-    </ul>
-    <a href="{{ url_for('index') }}">Back to Home</a>
-</body>
-</html>
+    <form action="{{ url_for('clear_transactions') }}" method="post">
+        <button type="submit">Clear All Transactions</button>
+    </form>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product id</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction[1] }}</td>
+                    <td>{{ transaction[2] }}</td>
+                    <td>${{ transaction[3] }}</td>
+                    <td>{{ transaction[4] }}</td>
+                    <td>{{ transaction[5] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

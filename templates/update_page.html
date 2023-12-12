@@ -1,6 +1,7 @@
-<!-- templates/update_page.html -->
-<!DOCTYPE html>
-<html lang="en">
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,5 +20,4 @@
         <button type="submit">Update</button>
     </form>
     <a href="{{ url_for('index') }}">Back to Home</a>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,40 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VendMax</title>
+    <style>
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        nav li {
+            margin-right: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('transactions_page') }}">Transactions</a></li>
+            <li><a href="{{ url_for('add_product_page') }}">Add Products</a></li>
+            <li><a href="{{ url_for('update_page') }}">Update Products</a></li>
+            <li><a href="{{ url_for('purchase_page') }}">Purchase Products</a></li>
+            <li><a href="{{ url_for('delete_page') }}">Delete Products</a></li>
+            <li><a href="{{ url_for('search') }}">Search</a></li>
+        </ul>
+    </nav>
+    {% block content %}{% endblock %}
+</body>
+</html>

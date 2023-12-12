@@ -1,0 +1,18 @@
+<!-- templates/purchase_page.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Purchase Products</h1>
+    <ul>
+        {% for product in products %}
+            <li>
+                {{ product[1] }} - Price: ${{ product[2] }} - Stock: {{ product[3] }}
+                <form action="{{ url_for('purchase', product_id=product[0]) }}" method="post">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" min="1" required>
+                    <button type="submit">Purchase</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

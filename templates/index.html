@@ -1,55 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VendMax</title>
-</head>
-<body>
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('search') }}">Search</a></li>
-            <li><a href="{{ url_for('transactions_page') }}">Transactions</a></li>
-        </ul>
-    </nav>
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block content %}
     <h1>Welcome to VendMax</h1>
-    <ul>
-        {% for product in products %}
-            <li>{{ product[1] }} - Price: ${{ product[2] }} - Stock: {{ product[3] }}
-                <form action="{{ url_for('purchase', product_id=product[0]) }}" method="post">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" min="1" required>
-                    <button type="submit">Purchase</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
-    <h2>Add Product</h2>
-    <form action="{{ url_for('add_product') }}" method="post">
-        <label for="product_name">Product Name:</label>
-        <input type="text" name="product_name" required>
-        <label for="product_price">Price:</label>
-        <input type="number" name="product_price" min="0" step="0.01" required>
-        <label for="product_stock">Stock:</label>
-        <input type="number" name="product_stock" min="0" required>
-        <button type="submit">Add Product</button>
-    </form>
-    <h2>Transaction History</h2>
-    <ul>
-        {% for transaction in transactions %}
-            <li>Product ID: {{ transaction[1] }} - Quantity: {{ transaction[2] }} - Total Price: ${{ transaction[3] }}
-                - Timestamp: {{ transaction[4] }}</li>
-        {% endfor %}
-    </ul>
-    <ul>
-        {% for product in products %}
-            <li>
-                {{ product[1] }} - Price: ${{ product[2] }} - Stock: {{ product[3] }}
-            </li>
-        {% endfor %}
-    </ul>
-    <a href="{{ url_for('update_page') }}">Update Products</a>    
-</body>
-</html>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product[1] }}</td>
+                    <td>${{ product[2] }}</td>
+                    <td>{{ product[3] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

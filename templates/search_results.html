@@ -1,5 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,6 +15,4 @@
             <li>{{ product[1] }} - Price: ${{ product[2] }} - Stock: {{ product[3] }}</li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('index') }}">Back to Home</a>
-</body>
-</html>
+{% endblock %}

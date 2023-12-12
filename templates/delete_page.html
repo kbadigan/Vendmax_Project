@@ -1,0 +1,14 @@
+<!-- templates/delete_page.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Delete Products</h1>
+    <p>Choose products to delete:</p>
+    <form action="{{ url_for('delete_page') }}" method="post">
+        {% for product in products %}
+            <input type="checkbox" name="product_ids[]" value="{{ product[0] }}">
+            {{ product[1] }} - Price: ${{ product[2] }} - Stock: {{ product[3] }}<br>
+        {% endfor %}
+        <button type="submit">Delete Selected Products</button>
+    </form>
+{% endblock %}

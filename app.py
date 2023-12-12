@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,flash
 import sqlite3
 
 app = Flask(__name__)
 
 # SQLite database file
 DB_FILE = "vendmax.db"
-
+app.secret_key = 'your_secret_key_here'
 # Create tables if not exist
 with sqlite3.connect(DB_FILE) as conn:
     cursor = conn.cursor()
@@ -21,6 +21,7 @@ with sqlite3.connect(DB_FILE) as conn:
     CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         product_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
         quantity INTEGER NOT NULL,
         total_price REAL NOT NULL,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -39,9 +40,9 @@ def index():
 
 @app.route('/add_product', methods=['POST'])
 def add_product():
-    name = request.form.get('product_name')
-    price = float(request.form.get('product_price'))
-    stock = int(request.form.get('product_stock'))
+    name = request.form.get('name')
+    price = float(request.form.get('price'))
+    stock = int(request.form.get('stock'))
 
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
@@ -108,8 +109,8 @@ def purchase(product_id):
             total_price = product[2] * quantity
 
             cursor.execute("UPDATE products SET stock=stock-? WHERE id=?", (quantity, product_id))
-            cursor.execute("INSERT INTO transactions (product_id, quantity, total_price) VALUES (?, ?, ?)",
-                           (product_id, quantity, total_price))
+            cursor.execute("INSERT INTO transactions (product_id,name, quantity, total_price) VALUES (?,?, ?, ?)",
+                           (product_id,name, quantity, total_price))
             conn.commit()
 
     return redirect(url_for('index'))
@@ -152,5 +153,78 @@ def transactions_page():
         transactions = cursor.fetchall()
 
     return render_template('transactions_page.html', transactions=transactions)
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product_page():
+    if request.method == 'GET':
+        return render_template('add_product_page.html')
+
+    elif request.method == 'POST':
+        name = request.form.get('name')
+        price = float(request.form.get('price'))
+        stock = int(request.form.get('stock'))
+
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", (name, price, stock))
+            conn.commit()
+
+        return redirect(url_for('index'))
+@app.route('/purchase')
+def purchase_page():
+    # Fetch the list of products from the database
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM products")
+        products = cursor.fetchall()
+    if request.method == 'POST':
+        quantity = int(request.form.get('quantity'))
+
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM products WHERE id=?", (product_id,))
+            product = cursor.fetchone()
+
+            if product and product[3] >= quantity:  # Check if the product exists and has enough stock
+                total_price = product[2] * quantity
+
+                cursor.execute("UPDATE products SET stock=stock-? WHERE id=?", (quantity, product_id))
+                cursor.execute("INSERT INTO transactions (product_id,name, quantity, total_price) VALUES (?,?, ?, ?)",
+                           (product_id,name, quantity, total_price))
+                conn.commit()
+
+    return render_template('purchase_page.html', products=products)
+# Feature 13: Delete Products page
+@app.route('/delete', methods=['GET', 'POST'])
+def delete_page():
+    # Fetch the list of products from the database
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM products")
+        products = cursor.fetchall()
+
+    if request.method == 'POST':
+        # Handle the form submission for deleting selected products
+        selected_product_ids = request.form.getlist('product_ids[]')
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            for product_id in selected_product_ids:
+                cursor.execute("DELETE FROM products WHERE id=?", (product_id,))
+            conn.commit()
+            
+            flash('Products deleted successfully!', 'success')
+
+    return render_template('delete_page.html', products=products)
+# Feature 14: Clear All Transactions
+@app.route('/clear_transactions', methods=['POST'])
+def clear_transactions():
+    # Clear all transactions in the database
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM transactions")
+        conn.commit()
+
+    flash('All transactions cleared successfully!', 'success')
+    return redirect(url_for('transactions_page'))
+
 if __name__ == '__main__':
     app.run(debug=True)
